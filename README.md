@@ -5,12 +5,13 @@ api for create update and delete of traffic participant. specifically from scene
 ```mermaid
 graph TB
 
-  Publisher --> Subscriber: all types of detections
+  Publisher --> Node1: all types of detections
   subgraph "Scene Uds Manager"
   Publisher(Publisher topic)
   end
 
   subgraph "Traffic Particpant Controller"
+  Node1[Node 1] --> Node2[Node 2]
   Subscriber(Subscriber topic)
   Subscriber -- filter for wheelchair and cones detections only --> database
 end
