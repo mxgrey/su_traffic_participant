@@ -7,12 +7,11 @@ graph TB
 
   Publisher --> Subscriber
   subgraph "Scene Uds Manager"
-  Publisher(Publisher topic)
+  Publisher(publisher topic (all detections))
   end
 
   subgraph "Traffic Particpant Controller"
-  Node1[Node 1] --> Node2[Node 2]
-  Subscriber(Subscriber topic)
+  Subscriber(subscriber topic)
   Subscriber -- filter for wheelchair and cones detections only --> database
 end
 ```
