@@ -16,7 +16,8 @@ graph TB
   Detection --> Proximity[check for proximity based on detection type]
   Proximity --> Create(create traffic participant)
   Proximity --> Update(update existing traffic participant)
-  Delete(delete existing traffic participant based on timed threshold)
+  TimedThreshold[check if existing traffic participant exceed a time threshold] --> Delete(delete existing traffic participant)
+  
 
 end
 ```
