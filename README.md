@@ -5,7 +5,7 @@ api for create update and delete of traffic participant. specifically from scene
 ```mermaid
 graph TB
 
-  Publisher --> Node2
+  Publisher --> Subscriber
   subgraph "Scene Uds Manager"
   Publisher(Publisher topic)
   end
@@ -15,30 +15,4 @@ graph TB
   Subscriber(Subscriber topic)
   Subscriber -- filter for wheelchair and cones detections only --> database
 end
-```
-
-```mermaid
-graph TB
-
-  SubGraph1 --> SubGraph1Flow
-  subgraph "SubGraph 1 Flow"
-  SubGraph1Flow(SubNode 1)
-  SubGraph1Flow -- Choice1 --> DoChoice1
-  SubGraph1Flow -- Choice2 --> DoChoice2
-  end
-
-  subgraph "Main Graph"
-  Node1[Node 1] --> Node2[Node 2]
-  Node2 --> SubGraph1[Jump to SubGraph1]
-  SubGraph1 --> FinalThing[Final Thing]
-end
-```
-
-
-```mermaid
-graph TD;
-  A-->B;
-  A-->C;
-  B-->D;
-  C-->D;
 ```
