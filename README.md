@@ -16,8 +16,21 @@ graph TB
   Detection --> Proximity[check for proximity based on detection type]
   Proximity --> Create(create traffic participant)
   Proximity --> Update(update existing traffic participant)
-  TimedThreshold[check if existing traffic participant exceed a time threshold] --> Delete(delete existing traffic participant)
-  
+  CountdownTimer[check if existing traffic participant exceed a time threshold] --> Delete(delete existing traffic participant)
 
 end
 ```
+
+design reference to confluence page(https://imda-dsl.atlassian.net/wiki/spaces/VAMA/pages/470286350/Alternate+flow+for+lift+integration+and+obstacle)
+
+## software design
+
+1. Proximity checker 
+- for wheelchair: 2m x width of traffic lane
+- for cone: 0.5m x width of traffic lane
+
+2. Countdown Timer to check if existing traffic participant exceed a time threshold. This may need multi-threading. 
+- Each thread created for a new traffic participant and start counting down. Once countdown is up, traffic particpant would be deleted. 
+- If existing participant gets updated, countdown should reset. 
+
+
