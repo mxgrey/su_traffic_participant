@@ -7,7 +7,7 @@ graph TB
 
   Publisher --> Subscriber
   subgraph "Scene Uds Manager"
-  Publisher(publisher topic (all detections))
+  Publisher(publisher topic for all detections)
   end
 
   subgraph "Traffic Particpant Controller"
