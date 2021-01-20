@@ -11,4 +11,12 @@ graph TD;
     subgraph "Traffic Particpant Controller"
     Subscriber(Subscriber topic)
     Subscriber -- filter for wheelchair and cones detections only --> database
-``
+```
+
+```mermaid
+graph TD;
+  A-->B;
+  A-->C;
+  B-->D;
+  C-->D;
+```
