@@ -5,7 +5,7 @@ api for create update and delete of traffic participant. specifically from scene
 ```mermaid
 graph TB
 
-  Publisher --> Node1: all types of detections
+  Publisher --> Node2
   subgraph "Scene Uds Manager"
   Publisher(Publisher topic)
   end
