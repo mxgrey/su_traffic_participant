@@ -12,10 +12,10 @@ graph TB
 
   subgraph "Traffic Particpant Controller"
   Subscriber(subscriber topic for all detections)
-  Subscriber -- filter for wheelchair and cones detections only --> database
-  Create(create traffic participant if detectionId is new)
-  Update(update existing traffic participant)
-  Delete(delete existing traffic participant if ?)
+  Subscriber -- filter for wheelchair and cones detections only --> Detection((Detection Object))
+  Detection --> Create(create traffic participant if detectionId is new)
+  Detection --> Update(update existing traffic participant)
+  Detection --> Delete(delete existing traffic participant if ?)
 
 end
 ```
