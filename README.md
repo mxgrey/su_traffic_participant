@@ -18,10 +18,6 @@ graph TB
   Create -- launch read-only fleet adapter ROS node w location param --> Save(save in-memory db)
   Proximity --> Update(update existing traffic participant)
   CountdownTimer[check if existing traffic participant exceed a time threshold] --> Delete(delete existing traffic participant)
-  A---|This is the text|B
-  C-- This is the text ---D
-  E-->|text|F
-  G-- text -->J
 
 end
 ```
@@ -46,5 +42,5 @@ design reference to confluence page(https://imda-dsl.atlassian.net/wiki/spaces/V
 
 ## TODO:
 
-1. how to run launch.xml file using ROS python library? to launch fleet adapter
+1. how to run launch.xml file using ROS python library? to launch fleet adapter node in rmf_fleet_adapter package.
 
