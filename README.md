@@ -18,6 +18,10 @@ graph TB
   Create -- launch read-only fleet adapter ROS node w location param --> Save(save in-memory db)
   Proximity --> Update(update existing traffic participant)
   CountdownTimer[check if existing traffic participant exceed a time threshold] --> Delete(delete existing traffic participant)
+  A---|This is the text|B
+  C-- This is the text ---D
+  E-->|text|F
+  G-- text -->J
 
 end
 ```
