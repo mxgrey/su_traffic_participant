@@ -13,11 +13,11 @@ graph TB
   subgraph "Traffic Particpant Controller"
   Subscriber(subscriber topic for all detections)
   Subscriber --> FindClass[filter for wheelchair and cones detections only] --> Detection((Detection Object))
-  Detection --> Proximity[check for proximity based on detection type]
+  Detection --> Proximity{check for proximity based on detection type}
   Proximity -- location of object --> Create(create traffic participant)
-  Create -- create read-only fleet adapter -- populate location in fleet_states
+  Create -- launch read-only fleet adapter ROS node w location param
   Proximity --> Update(update existing traffic participant)
-  CountdownTimer[check if existing traffic participant exceed a time threshold] --> Delete(delete existing traffic participant)
+  CountdownTimer{check if existing traffic participant exceed a time threshold} --> Delete(delete existing traffic participant)
 
 end
 ```
@@ -39,4 +39,8 @@ design reference to confluence page(https://imda-dsl.atlassian.net/wiki/spaces/V
 1. static images 
 
 - location of these detection would change according to the current location of robot as camera location is at a relative location. 
+
+## TODO:
+
+1. how to run launch.xml file using ROS python library? to launch fleet adapter
 
