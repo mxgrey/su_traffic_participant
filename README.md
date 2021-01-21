@@ -12,8 +12,9 @@ graph TB
 
   subgraph "Traffic Particpant Controller"
   Subscriber(subscriber topic for all detections)
-  Subscriber --> FindClass(filter for wheelchair and cones detections only) --> Detection((Detection Object))
+  Subscriber --> FindClass[filter for wheelchair and cones detections only] --> Detection((Detection Object))
   Detection --> Proximity[check for proximity based on detection type]
+  Proximity -- location of object --> Create(create traffic participant)
   Proximity --> Update(update existing traffic participant)
   CountdownTimer[check if existing traffic participant exceed a time threshold] --> Delete(delete existing traffic participant)
 
