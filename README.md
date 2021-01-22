@@ -17,10 +17,12 @@ graph TB
   style FindClass fill:#f9f,stroke:#333,stroke-width:4px
   style Proximity fill:#ccf,stroke:#f66,stroke-width:2px,stroke-dasharray: 5, 5
   Proximity -- location of object --> Create(create traffic participant)
-  Create --- C1[create and run ROS2 fleet driver app w publisher to fleet_states] --- C2[launch read-only fleet adapter ROS node] --> Save(save in-memory db)
+  Create --- C1[create and run ROS2 fleet driver app w publisher to fleet_states] --- C2[launch read-only fleet adapter ROS node] --> Save(save in-memory DB)
   Proximity --> Update(update existing traffic participant) 
-  Update --- U1[publish new location to /fleet_states] 
-  CountdownTimer[check if existing traffic participant exceed a time threshold] --> Delete(delete existing traffic participant)
+  Update --- U1[publish new location to /fleet_states] --> CountdownTimer
+  CountdownTimer[countdown timer] --- TimerReset[reset timer]
+  CountdownTimer --- TimerStop[countdown timer stops] --> Delete(delete existing traffic participant)
+  Delete --- D1[remove fleet driver app and fleet adapter node] --> DB(delete in DB)
 
 end
 ```
