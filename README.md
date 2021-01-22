@@ -19,7 +19,7 @@ graph TB
   Proximity -- location of object --> Create(create traffic participant)
   Create --- C1[create and run ROS2 fleet driver app w publisher to fleet_states] --- C2[launch read-only fleet adapter ROS node] --> Save(save in-memory DB)
   Proximity --> Update(update existing traffic participant) 
-  Update --- U1[publish new location to /fleet_states] --> CountdownTimer
+  Update --- U1[publish new location to /fleet_states] --> TimerReset
   CountdownTimer[countdown timer] --- TimerReset[reset timer]
   CountdownTimer --- TimerStop[countdown timer stops] --> Delete(delete existing traffic participant)
   Delete --- D1[remove fleet driver app and fleet adapter node] --> DB(delete in DB)
