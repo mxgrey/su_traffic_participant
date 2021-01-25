@@ -14,8 +14,6 @@ graph TB
   Subscriber(subscriber topic for all detections)
   Subscriber --> FindClass[filter for wheelchair and cones detections only] --> Detection((Detection Object))
   Detection --> Proximity[check for proximity based on detection type]
-  style FindClass fill:#f9f,stroke:#333,stroke-width:4px
-  style Proximity fill:#ccf,stroke:#f66,stroke-width:2px,stroke-dasharray: 5, 5
   Proximity -- location of object --> Create(create traffic participant)
   Create --- C1[create and run ROS2 fleet driver app w publisher to fleet_states] --- C2[launch read-only fleet adapter ROS node] --> Save(save in-memory DB)
   Proximity --> Update(update existing traffic participant) 
@@ -23,6 +21,12 @@ graph TB
   CountdownTimer[countdown timer] --- TimerReset[reset timer]
   CountdownTimer --- TimerStop[countdown timer stops] --> Delete(delete existing traffic participant)
   Delete --- D1[remove fleet driver app and fleet adapter node] --> DB(delete in DB)
+  style Create stroke:#f66,stroke-width:4px
+  style Update stroke:#f66,stroke-width:4px
+  style Delete stroke:#f66,stroke-width:4px
+  style FindClass fill:#ccf,stroke-width:2px,stroke-dasharray: 5, 5
+  style Proximity fill:#ccf,stroke-width:2px,stroke-dasharray: 5, 5
+  style CountdownTimer fill:#ccf,stroke-width:2px,stroke-dasharray: 5, 5
 
 end
 ```
