@@ -15,6 +15,7 @@ graph TB
   Subscriber --> FindClass[filter for wheelchair and cones detections only] --> Detection((Detection Object))
   Detection --> Proximity[check for proximity based on detection type]
   Proximity -- location of object --> Create(create traffic participant)
+  DB(Detection in-memory DB) -> DBops(save, update, delete)
   Create --- C1[create and run ROS2 fleet driver app w publisher to fleet_states] --- C2[launch read-only fleet adapter ROS node] --> DB
   Proximity --> Update(update existing traffic participant) 
   Update --- U1[publish new location to /fleet_states] --> TimerReset
