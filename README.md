@@ -12,6 +12,8 @@ graph TB
 
   subgraph "rmf_fleet_adapter"
   Node(read-only fleet adapter node)
+  N2(node 2)
+  N3(node 3)
   end
 
   subgraph "detection adapter drivers"
