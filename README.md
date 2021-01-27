@@ -12,7 +12,6 @@ graph TB
 
   subgraph "rmf_fleet_adapter"
   Node(read-only fleet adapter node)
-  C2 --> Node
   end
 
   subgraph "Traffic Particpant Controller"
@@ -22,6 +21,7 @@ graph TB
   Proximity -- location of object --> Create(create traffic participant)
   DB(Detection in-memory DB) --> DBops(save, update, delete)
   Create --- C1[create and run ROS2 fleet driver app w publisher to fleet_states] --- C2[launch fleet adapter ROS node] --> DB
+  C2 --> Node
   Proximity --> Update(update existing traffic participant) 
   Update --- U1[publish new location to /fleet_states] --> TimerReset
   CountdownTimer[countdown timer] --- TimerReset[reset timer]
