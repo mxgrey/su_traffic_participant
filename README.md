@@ -14,13 +14,20 @@ graph TB
   Node(read-only fleet adapter node)
   end
 
+  subgraph "detection adapter drivers"
+  Driver(Driver 1)
+  Driver2(Driver 2)
+  Driver3(Driver 3)
+  end
+
   subgraph "Traffic Particpant Controller"
   Subscriber(subscriber topic for all detections)
   Subscriber --> FindClass[filter for wheelchair and cones detections only] --> Detection((Detection Object))
   Detection --> Proximity[check for proximity based on detection type]
   Proximity -- location of object --> Create(create traffic participant)
   DB(Detection in-memory DB) --> DBops(save, update, delete)
-  Create --- C1[create and run ROS2 fleet driver app w publisher to fleet_states] --- C2[launch fleet adapter ROS node] --> DB
+  Create --- C1[launch driver app w publisher to fleet_states] --- C2[launch detection adapter node] --> DB
+  C1 --> Driver
   C2 --> Node
   Proximity --> Update(update existing traffic participant) 
   Update --- U1[publish new location to /fleet_states] --> TimerReset
@@ -41,6 +48,10 @@ end
 
 design reference to confluence page(https://imda-dsl.atlassian.net/wiki/spaces/VAMA/pages/470286350/Alternate+flow+for+lift+integration+and+obstacle)
 
+## components details
+
+- adapter driver: similar to fleet adapater drivers where its job is to transmit `rmf_fleet_msgs/FleetState` messages out to the `fleet_states` topic. It is a ROS 2 application (using either rclcpp or rclpy) which we will refer to as the Fleet Driver.
+
 ## software design
 
 1. Proximity checker 
@@ -60,4 +71,8 @@ design reference to confluence page(https://imda-dsl.atlassian.net/wiki/spaces/V
 ## TODO:
 
 1. how to run launch.xml file using ROS python library? to launch fleet adapter node in rmf_fleet_adapter package.
+
+## follow-up
+
+1. `detection_states` topic be created that is integrated with `rmf_traffic`. detection traffic participants are riding on `fleet_states` topic since `rmf_fleet_adapter` library is utilised. 
 
