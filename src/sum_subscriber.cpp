@@ -10,7 +10,7 @@
 #include "su_msgs/msg/object.hpp"
 #include "su_msgs/msg/coordinates.hpp"
 
-#include "DetectionNode.hpp"
+#include "WriterNode.hpp"
 #include "std_msgs/msg/string.hpp"
 
 using std::placeholders::_1;
@@ -21,17 +21,15 @@ public:
   MinimalSubscriber()
   : Node("detection_subscriber")
   {
-
     subscription_ = this->create_subscription<su_msgs::msg::ObjectsLocation>(
       "su_detections", rclcpp::SystemDefaultsQoS(), std::bind(&MinimalSubscriber::topic_callback, this, _1));
-  }
 
+  }
 
 protected:
    static int getCount() { return count++; }
 
 private:
-
   
   void topic_callback(const su_msgs::msg::ObjectsLocation::SharedPtr msg) const
   {
@@ -59,11 +57,13 @@ private:
       msg->objects[0].object_locations[0].center[0], msg->objects[0].object_locations[0].center[1], msg->objects[0].object_locations[0].center[2]};
     
     std::string nodeName = "detection_" + std::to_string(getCount());
-    const auto detection_node = DetectionNode::make(nodeName, pos);
+    writer->create_participant(nodeName, pos);
+
   }
 
   rclcpp::Subscription<su_msgs::msg::ObjectsLocation>::SharedPtr subscription_;
   static int count;
+  std::shared_ptr<WriterNode> writer;
 };
 
 int MinimalSubscriber::count=1;

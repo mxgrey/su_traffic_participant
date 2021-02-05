@@ -18,9 +18,16 @@ std::shared_ptr<DetectionNode> DetectionNode::make(
     const rclcpp::Parameter use_sim_time("use_sim_time", true);
     node_options.parameter_overrides().push_back(use_sim_time);
 
+    rclcpp::ExecutorOptions options;
+    rclcpp::executors::SingleThreadedExecutor executor(options);
+
     auto node = std::shared_ptr<DetectionNode>(new DetectionNode(nodeName, node_options));
+    node->declare_parameter("DetectionNode ALIVE");
+    executor.add_node(node);
+    
     while(!node->_writer->ready())
         rclcpp::spin_some(node);
+        
         
     rmf_traffic::schedule::ParticipantDescription description{
         "participant_" + nodeName,
@@ -34,16 +41,18 @@ std::shared_ptr<DetectionNode> DetectionNode::make(
 
     rmf_traffic::Trajectory t;
     using namespace std::chrono_literals;
-    rmf_traffic::Duration duration_ = 600000s;
-    // rmf_traffic::Time _start_time = rmf_traffic_ros2::convert(node->get_clock()->now());
+    //TODO: get duration from subscriber
+    rmf_traffic::Duration duration_ = 60s;
     rmf_traffic::Time _start_time = rmf_traffic_ros2::convert(node->now());
     rmf_traffic::Time _finish_time = _start_time + duration_;
-
-    //TODO: map from param
+    //TODO: get name from param
     std::string map_name = "L1";
+
     t.insert(_start_time, detectionLocation, {0, 0, 0});
     t.insert(_finish_time, detectionLocation, {0, 0, 0});
 
+    executor.spin_some();
+    
     node->_writer->async_make_participant(
         std::move(description),
         [node, t = std::move(t), map_name](rmf_traffic::schedule::Participant participant)

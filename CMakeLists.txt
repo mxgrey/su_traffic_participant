@@ -35,13 +35,14 @@ foreach(pkg ${dep_pkgs})
 endforeach()
 
 
-file(GLOB_RECURSE su_traffic_participant_srcs src/DetectionNode.cpp)
+file(GLOB_RECURSE traffic_writer_srcs 
+  src/WriterNode.cpp)
 
-add_library(su_traffic_participant SHARED
-  ${su_traffic_participant_srcs}
+add_library(traffic_writer SHARED
+  ${traffic_writer_srcs}
 )
 
-target_link_libraries(su_traffic_participant
+target_link_libraries(traffic_writer
   PUBLIC
     rmf_traffic_ros2::rmf_traffic_ros2
     rmf_traffic::rmf_traffic
@@ -49,7 +50,7 @@ target_link_libraries(su_traffic_participant
     ${rclcpp_LIBRARIES}
 )
 
-target_include_directories(su_traffic_participant
+target_include_directories(traffic_writer
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
@@ -60,13 +61,23 @@ target_include_directories(su_traffic_participant
 
 #===============================================================================
 
-add_executable(test_single_detection
-  src/test_single_detection.cpp
+add_executable(writer_node src/WriterNode.cpp)
+
+target_link_libraries(writer_node
+  PUBLIC
+    rmf_traffic_ros2::rmf_traffic_ros2
+    rmf_traffic::rmf_traffic
+    ${su_msgs_LIBRARIES}
+    ${rclcpp_LIBRARIES}
 )
 
-target_link_libraries(test_single_detection
-  PRIVATE
-    su_traffic_participant
+target_include_directories(writer_node
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    ${su_msgs_INCLUDE_DIRS}
+    ${EIGEN3_INCLUDE_DIRS}
+    ${rclcpp_INCLUDE_DIRS}
 )
 
 #===============================================================================
@@ -80,7 +91,7 @@ target_link_libraries(listener
     ${su_msgs_LIBRARIES}
     ${rclcpp_LIBRARIES}
   PRIVATE
-    su_traffic_participant
+    traffic_writer
 )
 
 target_include_directories(listener
@@ -96,9 +107,9 @@ target_include_directories(listener
 
 install(
   TARGETS
-    su_traffic_participant
+    traffic_writer
+    writer_node
     listener
-    test_single_detection
   EXPORT su_traffic_participant
   RUNTIME DESTINATION lib/${PROJECT_NAME}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
