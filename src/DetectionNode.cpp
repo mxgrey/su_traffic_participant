@@ -14,7 +14,12 @@ std::shared_ptr<DetectionNode> DetectionNode::make(
     Eigen::Vector3d detectionLocation
 )
 {
-    auto node = std::shared_ptr<DetectionNode>(new DetectionNode(nodeName));
+
+    rclcpp::NodeOptions node_options;
+    const rclcpp::Parameter use_sim_time("use_sim_time", true);
+    node_options.parameter_overrides().push_back(use_sim_time);
+
+    auto node = std::shared_ptr<DetectionNode>(new DetectionNode(nodeName, node_options));
     while(!node->_writer->ready())
         rclcpp::spin_some(node);
         
@@ -31,7 +36,8 @@ std::shared_ptr<DetectionNode> DetectionNode::make(
     rmf_traffic::Trajectory t;
     using namespace std::chrono_literals;
     rmf_traffic::Duration duration_ = 600000s;
-    rmf_traffic::Time _start_time = rmf_traffic_ros2::convert(node->get_clock()->now());
+    // rmf_traffic::Time _start_time = rmf_traffic_ros2::convert(node->get_clock()->now());
+    rmf_traffic::Time _start_time = rmf_traffic_ros2::convert(node->now());
     rmf_traffic::Time _finish_time = _start_time + duration_;
     //TODO: map from param
     std::string map_name = "L1";
@@ -50,12 +56,14 @@ std::shared_ptr<DetectionNode> DetectionNode::make(
 
         auto mirror_future = rmf_traffic_ros2::schedule::make_mirror(
             *node, rmf_traffic::schedule::query_all());
+
         node->_mirror_manager = mirror_future.get();
         node->_negotiation = rmf_traffic_ros2::schedule::Negotiation(
             *node, node->_mirror_manager->snapshot_handle());
-        node->_negotiation->register_negotiator(participant.id(), 
-            std::make_unique<rmf_traffic::schedule::StubbornNegotiator>(
-            rmf_traffic::schedule::StubbornNegotiator(participant)));
+
+        // node->_negotiation->register_negotiator(participant.id(), 
+        //     std::make_unique<rmf_traffic::schedule::StubbornNegotiator>(
+        //     rmf_traffic::schedule::StubbornNegotiator(participant)));
         std::cout << "*** " << std::endl;
     });    
 
@@ -84,10 +92,9 @@ std::shared_ptr<DetectionNode> DetectionNode::make(
     // return nullptr;
 }
 
-DetectionNode::DetectionNode(std::string nodeName) 
-: rclcpp::Node(nodeName)
+DetectionNode::DetectionNode(std::string nodeName, const rclcpp::NodeOptions& options) 
+: rclcpp::Node(nodeName, options)
 {
     _writer = rmf_traffic_ros2::schedule::Writer::make(*this);
-    rmf_traffic::Time _start_time = rmf_traffic_ros2::convert(get_clock()->now());
     std::cout << "*** created node: " << nodeName << std::endl;
 }

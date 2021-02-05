@@ -16,7 +16,7 @@ public:
   rmf_utils::optional<rmf_traffic::schedule::Participant> participant;
 private:
 
-  DetectionNode(std::string nodeName);
+  DetectionNode(std::string nodeName, const rclcpp::NodeOptions& options);
   // rmf_traffic_ros2::schedule::WriterPtr _writer;
   // rmf_traffic::schedule::Participant participant;
   rmf_utils::optional<rmf_traffic_ros2::schedule::MirrorManager> _mirror_manager;
