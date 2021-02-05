@@ -23,7 +23,7 @@ public:
   {
 
     subscription_ = this->create_subscription<su_msgs::msg::ObjectsLocation>(
-      "su_detections", 10, std::bind(&MinimalSubscriber::topic_callback, this, _1));
+      "su_detections", rclcpp::SystemDefaultsQoS(), std::bind(&MinimalSubscriber::topic_callback, this, _1));
   }
 
 
