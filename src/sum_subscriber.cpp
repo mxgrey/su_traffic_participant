@@ -63,8 +63,6 @@ private:
   }
 
   rclcpp::Subscription<su_msgs::msg::ObjectsLocation>::SharedPtr subscription_;
-  size_t count_;
-
   static int count;
 };
 

@@ -14,7 +14,6 @@ std::shared_ptr<DetectionNode> DetectionNode::make(
     Eigen::Vector3d detectionLocation
 )
 {
-
     rclcpp::NodeOptions node_options;
     const rclcpp::Parameter use_sim_time("use_sim_time", true);
     node_options.parameter_overrides().push_back(use_sim_time);
@@ -39,6 +38,7 @@ std::shared_ptr<DetectionNode> DetectionNode::make(
     // rmf_traffic::Time _start_time = rmf_traffic_ros2::convert(node->get_clock()->now());
     rmf_traffic::Time _start_time = rmf_traffic_ros2::convert(node->now());
     rmf_traffic::Time _finish_time = _start_time + duration_;
+
     //TODO: map from param
     std::string map_name = "L1";
     t.insert(_start_time, detectionLocation, {0, 0, 0});
@@ -52,14 +52,14 @@ std::shared_ptr<DetectionNode> DetectionNode::make(
         std::cout << "*** participant created! sending trajectory" << std::endl;
         node->participant->set({{map_name, std::move(t)}});
 
-        rmf_traffic::schedule::StubbornNegotiator negotiator{ participant };
+        // rmf_traffic::schedule::StubbornNegotiator negotiator{ participant };
 
-        auto mirror_future = rmf_traffic_ros2::schedule::make_mirror(
-            *node, rmf_traffic::schedule::query_all());
+        // auto mirror_future = rmf_traffic_ros2::schedule::make_mirror(
+        //     *node, rmf_traffic::schedule::query_all());
 
-        node->_mirror_manager = mirror_future.get();
-        node->_negotiation = rmf_traffic_ros2::schedule::Negotiation(
-            *node, node->_mirror_manager->snapshot_handle());
+        // node->_mirror_manager = mirror_future.get();
+        // node->_negotiation = rmf_traffic_ros2::schedule::Negotiation(
+        //     *node, node->_mirror_manager->snapshot_handle());
 
         // node->_negotiation->register_negotiator(participant.id(), 
         //     std::make_unique<rmf_traffic::schedule::StubbornNegotiator>(
@@ -97,4 +97,12 @@ DetectionNode::DetectionNode(std::string nodeName, const rclcpp::NodeOptions& op
 {
     _writer = rmf_traffic_ros2::schedule::Writer::make(*this);
     std::cout << "*** created node: " << nodeName << std::endl;
+}
+
+rclcpp::NodeOptions get_node_options()
+{
+  rclcpp::NodeOptions node_options;
+  const rclcpp::Parameter use_sim_time("use_sim_time", true);
+  node_options.parameter_overrides().push_back(use_sim_time);
+  return node_options;
 }

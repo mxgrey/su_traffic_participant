@@ -37,8 +37,6 @@ endforeach()
 
 file(GLOB_RECURSE su_traffic_participant_srcs src/DetectionNode.cpp)
 
-
-
 add_library(su_traffic_participant SHARED
   ${su_traffic_participant_srcs}
 )
@@ -62,24 +60,13 @@ target_include_directories(su_traffic_participant
 
 #===============================================================================
 
-add_executable(su_detection
-  src/main.cpp
-  src/DetectionNode.cpp
+add_executable(test_single_detection
+  src/test_single_detection.cpp
 )
 
-target_link_libraries(su_detection
-  PUBLIC
-    rmf_traffic_ros2::rmf_traffic_ros2
-    rmf_traffic::rmf_traffic
-    ${rclcpp_LIBRARIES}
-)
-
-target_include_directories(su_detection
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-    ${EIGEN3_INCLUDE_DIRS}
-    ${rclcpp_INCLUDE_DIRS}
+target_link_libraries(test_single_detection
+  PRIVATE
+    su_traffic_participant
 )
 
 #===============================================================================
@@ -109,9 +96,9 @@ target_include_directories(listener
 
 install(
   TARGETS
-    listener
-    su_detection
     su_traffic_participant
+    listener
+    test_single_detection
   EXPORT su_traffic_participant
   RUNTIME DESTINATION lib/${PROJECT_NAME}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

@@ -12,13 +12,13 @@ public:
   static std::shared_ptr<DetectionNode> make(
       std::string nodeName, 
       Eigen::Vector3d detectionLocation);
+
   rmf_traffic_ros2::schedule::WriterPtr _writer;
   rmf_utils::optional<rmf_traffic::schedule::Participant> participant;
 private:
 
   DetectionNode(std::string nodeName, const rclcpp::NodeOptions& options);
-  // rmf_traffic_ros2::schedule::WriterPtr _writer;
-  // rmf_traffic::schedule::Participant participant;
+  static rclcpp::NodeOptions options;
   rmf_utils::optional<rmf_traffic_ros2::schedule::MirrorManager> _mirror_manager;
   // rmf_traffic::schedule::StubbornNegotiator negotiator;
   rmf_utils::optional<rmf_traffic_ros2::schedule::Negotiation> _negotiation;
