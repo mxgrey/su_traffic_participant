@@ -1,14 +1,5 @@
 #include "SuTrafficNode.hpp"
-
-#include <rmf_traffic_ros2/schedule/Writer.hpp>
-#include <rmf_traffic_ros2/schedule/MirrorManager.hpp>
-#include <rmf_traffic_ros2/schedule/Negotiation.hpp>
-#include <rmf_traffic/schedule/StubbornNegotiator.hpp>
-
-#include <rmf_traffic_ros2/StandardNames.hpp>
-#include <rmf_traffic_ros2/Time.hpp>
-#include <rmf_traffic_ros2/Trajectory.hpp>
-#include <rmf_traffic/geometry/Circle.hpp>
+#include "ParticipantInterface.hpp"
 
 #include "std_msgs/msg/string.hpp"
 
@@ -23,25 +14,23 @@ SuTrafficNode::SuTrafficNode(const rclcpp::NodeOptions& node_options)
   
 }
 
-
-
-
 void SuTrafficNode::topic_callback(const su_msgs::msg::ObjectsLocation::SharedPtr msg) const
 {
-RCLCPP_INFO(this->get_logger(), 
-    "OBJECT ---> %s at '%f, %f, %f'", 
-    msg->objects[0].object_class.c_str(), 
-    msg->objects[0].object_locations[0].center[0],
-    msg->objects[0].object_locations[0].center[1],
-    msg->objects[0].object_locations[0].center[2]
-);
+    RCLCPP_INFO(this->get_logger(), 
+        "OBJECT ---> %s at '%f, %f, %f'", 
+        msg->objects[0].object_class.c_str(), 
+        msg->objects[0].object_locations[0].center[0],
+        msg->objects[0].object_locations[0].center[1],
+        msg->objects[0].object_locations[0].center[2]
+    );
 
-Eigen::Vector3d pos = Eigen::Vector3d{
-    msg->objects[0].object_locations[0].center[0], msg->objects[0].object_locations[0].center[1], msg->objects[0].object_locations[0].center[2]};
+    Eigen::Vector3d pos = Eigen::Vector3d{
+        msg->objects[0].object_locations[0].center[0], msg->objects[0].object_locations[0].center[1], msg->objects[0].object_locations[0].center[2]};
 
-std::string nodeName = "detection_" + std::to_string(getCount());
-std::cout << "*** " << nodeName << std::endl;
-// create_participant(nodeName, pos);
+    std::string nodeName = "detection_" + std::to_string(getCount());
+    std::cout << "*** " << nodeName << std::endl;
+    create_participant(nodeName, pos);
+    // test();
 
 };
 

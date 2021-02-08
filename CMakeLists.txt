@@ -62,7 +62,7 @@ target_include_directories(listener
 install(
   TARGETS
     listener
-  EXPORT su_traffic_participant
+  EXPORT listener
   RUNTIME DESTINATION lib/${PROJECT_NAME}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

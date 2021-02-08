@@ -25,6 +25,9 @@ public:
 
     rmf_traffic_ros2::schedule::WriterPtr writer;
 
+    rmf_utils::optional<rmf_traffic::schedule::Participant> participant;
+
+
 protected:
     static int getCount() { return count++; };
 

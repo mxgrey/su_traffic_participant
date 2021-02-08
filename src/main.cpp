@@ -11,10 +11,21 @@
 
 std::shared_ptr<SuTrafficNode> node;
 
+int test(){
+    std::cout << "TEST FUNCTION" << std::endl;
+    return 2;
+}
+
+
 rmf_traffic::schedule::Participant create_participant(
     std::string id, 
     Eigen::Vector3d detectionLocation)
 {
+
+
+    while (!node->writer->ready())
+        rclcpp::spin_some(node);
+
   std::cout << "*** " << std::endl;
   rmf_traffic::schedule::ParticipantDescription description{
       "participant_" + id,
@@ -52,10 +63,10 @@ rmf_traffic::schedule::Participant create_participant(
       std::move(description),
       [t = std::move(t), map_name](rmf_traffic::schedule::Participant participant)
   {
-    //   std::cout << "*** " << std::endl;
-    //   node->participant = std::move(participant);
-    //   std::cout << "*** participant ready ***" << std::endl;
-    //   node->participant->set({{map_name, std::move(t)}});
+      std::cout << "*** " << std::endl;
+      node->participant = std::move(participant);
+      std::cout << "*** participant ready ***" << std::endl;
+      node->participant->set({{map_name, std::move(t)}});
 
     //   rmf_traffic::schedule::StubbornNegotiator negotiator{ participant };
 
