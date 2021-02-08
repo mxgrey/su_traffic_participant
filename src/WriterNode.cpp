@@ -19,8 +19,6 @@ std::shared_ptr<WriterNode> WriterNode::make()
     
     while(!node->_writer->ready())
         rclcpp::spin_some(node);
-
-    std::cout << "end of create *** " << std::endl;
     return node;
 }
 
@@ -31,11 +29,12 @@ WriterNode::WriterNode(const rclcpp::NodeOptions& options)
 }
 
 rmf_traffic::schedule::Participant WriterNode::create_participant(
-      std::string nodeName, 
+      std::string id, 
       Eigen::Vector3d detectionLocation)
 {
+    std::cout << "*** " << std::endl;
     rmf_traffic::schedule::ParticipantDescription description{
-        "participant_" + nodeName,
+        "participant_" + id,
         "scene_understanding",
         rmf_traffic::schedule::ParticipantDescription::Rx::Unresponsive,
         rmf_traffic::Profile{
@@ -44,22 +43,33 @@ rmf_traffic::schedule::Participant WriterNode::create_participant(
         }
     };
 
+    std::cout << "*** " << std::endl;
     rmf_traffic::Trajectory t;
+    std::cout << "*** " << std::endl;
     using namespace std::chrono_literals;
+    std::cout << "*** " << std::endl;
     //TODO: get duration from subscriber
     rmf_traffic::Duration duration_ = 60s;
+    std::cout << "*** " << std::endl;
     rmf_traffic::Time _start_time = rmf_traffic_ros2::convert(node->now());
+    std::cout << "*** " << std::endl;
     rmf_traffic::Time _finish_time = _start_time + duration_;
     //TODO: get name from subscriber
+    std::cout << "*** " << std::endl;
     std::string map_name = "L1";
+
+    std::cout << "*** " << std::endl;
 
     t.insert(_start_time, detectionLocation, {0, 0, 0});
     t.insert(_finish_time, detectionLocation, {0, 0, 0});
+
+    std::cout << "*** " << std::endl;
 
     node->_writer->async_make_participant(
         std::move(description),
         [t = std::move(t), map_name](rmf_traffic::schedule::Participant participant)
     {
+        std::cout << "*** " << std::endl;
         node->participant = std::move(participant);
         std::cout << "*** participant ready ***" << std::endl;
         node->participant->set({{map_name, std::move(t)}});
@@ -91,7 +101,8 @@ int main(int argc, char * argv[])
 
   if (!writer_node)
     return 1;
-
+  
+  RCLCPP_INFO(writer_node->get_logger(), "Starting participant writer node");
   rclcpp::spin(writer_node);
   std::cout << "writer node shutdown *** " << std::endl;
   rclcpp::shutdown();

@@ -13,7 +13,7 @@ public:
   rmf_traffic_ros2::schedule::WriterPtr _writer;
 
   rmf_traffic::schedule::Participant create_participant(
-      std::string nodeName, 
+      std::string id, 
       Eigen::Vector3d detectionLocation);
 
 private:
