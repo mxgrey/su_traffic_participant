@@ -34,55 +34,11 @@ foreach(pkg ${dep_pkgs})
   find_package(${pkg} REQUIRED)
 endforeach()
 
-
-file(GLOB_RECURSE traffic_writer_srcs 
-  src/WriterNode.cpp)
-
-add_library(traffic_writer SHARED
-  ${traffic_writer_srcs}
-)
-
-target_link_libraries(traffic_writer
-  PUBLIC
-    rmf_traffic_ros2::rmf_traffic_ros2
-    rmf_traffic::rmf_traffic
-    ${su_msgs_LIBRARIES}
-    ${rclcpp_LIBRARIES}
-)
-
-target_include_directories(traffic_writer
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-    ${su_msgs_INCLUDE_DIRS}
-    ${EIGEN3_INCLUDE_DIRS}
-    ${rclcpp_INCLUDE_DIRS}
-)
-
 #===============================================================================
 
-add_executable(writer_node src/WriterNode.cpp)
-
-target_link_libraries(writer_node
-  PUBLIC
-    rmf_traffic_ros2::rmf_traffic_ros2
-    rmf_traffic::rmf_traffic
-    ${su_msgs_LIBRARIES}
-    ${rclcpp_LIBRARIES}
-)
-
-target_include_directories(writer_node
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-    ${su_msgs_INCLUDE_DIRS}
-    ${EIGEN3_INCLUDE_DIRS}
-    ${rclcpp_INCLUDE_DIRS}
-)
-
-#===============================================================================
-
-add_executable(listener src/sum_subscriber.cpp)
+add_executable(listener 
+  src/SuTrafficNode.cpp
+  src/main.cpp)
 
 target_link_libraries(listener
   PUBLIC
@@ -90,8 +46,6 @@ target_link_libraries(listener
     rmf_traffic::rmf_traffic
     ${su_msgs_LIBRARIES}
     ${rclcpp_LIBRARIES}
-  PRIVATE
-    traffic_writer
 )
 
 target_include_directories(listener
@@ -107,8 +61,6 @@ target_include_directories(listener
 
 install(
   TARGETS
-    traffic_writer
-    writer_node
     listener
   EXPORT su_traffic_participant
   RUNTIME DESTINATION lib/${PROJECT_NAME}

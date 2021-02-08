@@ -3,6 +3,7 @@
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
+#include <rclcpp/executors.hpp>
 
 #include <Eigen/Geometry>
 #include "geometry_msgs/msg/point.hpp"
@@ -10,7 +11,16 @@
 #include "su_msgs/msg/object.hpp"
 #include "su_msgs/msg/coordinates.hpp"
 
-#include "WriterNode.hpp"
+#include <rmf_traffic_ros2/schedule/Writer.hpp>
+#include <rmf_traffic_ros2/schedule/MirrorManager.hpp>
+#include <rmf_traffic_ros2/schedule/Negotiation.hpp>
+#include <rmf_traffic/schedule/StubbornNegotiator.hpp>
+
+#include <rmf_traffic_ros2/StandardNames.hpp>
+#include <rmf_traffic_ros2/Time.hpp>
+#include <rmf_traffic_ros2/Trajectory.hpp>
+#include <rmf_traffic/geometry/Circle.hpp>
+
 #include "std_msgs/msg/string.hpp"
 
 using std::placeholders::_1;
@@ -60,33 +70,15 @@ private:
       msg->objects[0].object_locations[0].center[0], msg->objects[0].object_locations[0].center[1], msg->objects[0].object_locations[0].center[2]};
     
     std::string nodeName = "detection_" + std::to_string(getCount());
-    // writer->create_participant(writer, nodeName, pos);
+    // create_participant(nodeName, pos);
 
   }
 
-
-  
-
-
-
   rclcpp::Subscription<su_msgs::msg::ObjectsLocation>::SharedPtr subscription_;
   static int count;
+
 };
 
 int MinimalSubscriber::count=1;
 
-int main(int argc, char * argv[])
-{
-  rclcpp::init(argc, argv);
 
-  rclcpp::NodeOptions node_options;
-  const rclcpp::Parameter use_sim_time("use_sim_time", true);
-  node_options.parameter_overrides().push_back(use_sim_time);
-
-  auto subscriber = std::make_shared<MinimalSubscriber>(node_options);
-  RCLCPP_INFO(subscriber->get_logger(), "Starting subscriber to SUM");
-  rclcpp::spin(subscriber);
-  RCLCPP_INFO(subscriber->get_logger(), "Closing subscriber to SUM");
-  rclcpp::shutdown();
-  return 0;
-}
