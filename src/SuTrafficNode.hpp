@@ -25,7 +25,7 @@ public:
 
     rmf_traffic_ros2::schedule::WriterPtr writer;
 
-    rmf_utils::optional<rmf_traffic::schedule::Participant> participant;
+    rmf_utils::optional<rmf_traffic::schedule::Participant> participant[4];
 
 
 protected:

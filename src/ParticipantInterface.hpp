@@ -5,7 +5,7 @@
 
 int test();
 
-rmf_traffic::schedule::Participant create_participant(
+void create_participant(
     std::string id, 
     Eigen::Vector3d detectionLocation);
 
