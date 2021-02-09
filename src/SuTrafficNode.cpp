@@ -28,19 +28,22 @@ void SuTrafficNode::topic_callback(const su_msgs::msg::ObjectsLocation::SharedPt
     );
 
     int detection_id = getCount();
-    const Eigen::Vector3d pos = Eigen::Vector3d{
+    Eigen::Vector3d pos = Eigen::Vector3d{
         msg->objects[0].object_locations[0].center[0], msg->objects[0].object_locations[0].center[1], msg->objects[0].object_locations[0].center[2]};
     
-    // detections[detection_id] = pos;
+    detections[detection_id] = pos;
+    print_detection_map();
     create_participant(detection_id, pos);
 
 };
 
 void SuTrafficNode::print_detection_map()
 {
+    RCLCPP_INFO(this->get_logger(), "Detections:");
     std::map<int, Eigen::Vector3d>::iterator itr; 
     for (itr = detections.begin(); itr != detections.end(); ++itr){
-        std::cout << "*** " << itr->first << "*** " << itr->second << std::endl;
+        RCLCPP_INFO(this->get_logger(), 
+            "id: %d, location: '%f %f %f'", itr->first, itr->second[0], itr->second[1], itr->second[2]);
     }
 }
 
