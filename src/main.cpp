@@ -44,7 +44,7 @@ void create_participant(
     rmf_traffic::Trajectory t;
     using namespace std::chrono_literals;
     //TODO: get duration from subscriber
-    rmf_traffic::Duration duration_ = 60s;
+    rmf_traffic::Duration duration_ = 600s;
     rmf_traffic::Time _start_time = rmf_traffic_ros2::convert(node->now());
     rmf_traffic::Time _finish_time = _start_time + duration_;
     //TODO: get name from subscriber
@@ -63,8 +63,6 @@ void create_participant(
                 std::swap(detections[p_id], it->second);
                 detections.erase(it);
             }
-            std::cout << "***********" << std::endl;
-            print_detection_map();
 
             node->participant[id] = std::move(participant);
             std::cout << "*** participant ready with id: " << p_id << std::endl;
@@ -97,8 +95,13 @@ void update_participant(
     int id, 
     Eigen::Vector3d detectionLocation)
 {
+    while (!node->writer->ready())
+        rclcpp::spin_some(node);
     std::cout << "*** clear itinerary" << std::endl;
+    // rmf_utils::optional<rmf_traffic::schedule::Participant> 
+    //     p = node->participant[id];
     node->participant[id]->clear();
+
 }
 
 
