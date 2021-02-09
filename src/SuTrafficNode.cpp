@@ -35,6 +35,12 @@ void SuTrafficNode::topic_callback(const su_msgs::msg::ObjectsLocation::SharedPt
     print_detection_map();
     create_participant(detection_id, pos);
 
+    bool isNearby = false;
+    if (isNearby){
+        //TODO: count should minus 1?
+        update_participant(detection_id, pos);
+    }
+
 };
 
 void SuTrafficNode::print_detection_map()

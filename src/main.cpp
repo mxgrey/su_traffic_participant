@@ -8,7 +8,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/executors.hpp>
 
-
 std::shared_ptr<SuTrafficNode> node;
 
 void create_participant(
@@ -44,8 +43,13 @@ void create_participant(
         std::move(description),
         [id, t = std::move(t), map_name](rmf_traffic::schedule::Participant participant)
         {
+            const int p_id = participant.id();
             node->participant[id] = std::move(participant);
-            std::cout << "*** participant ready ***" << std::endl;
+            std::cout << "*** participant ready with id: " << p_id << std::endl;
+
+
+            
+
             node->participant[id]->set({{map_name, std::move(t)}});
 
             // rmf_traffic::schedule::StubbornNegotiator negotiator{ participant };
@@ -65,6 +69,13 @@ void create_participant(
             // node->writer->unregister_participant(participant.id());
 
         });    
+}
+
+void update_participant(
+    int id, 
+    Eigen::Vector3d detectionLocation)
+{
+
 }
 
 int main(int argc, char * argv[])

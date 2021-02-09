@@ -3,7 +3,13 @@
 #ifndef PARTICIPANTINTERFACE_HPP
 #define PARTICIPANTINTERFACE_HPP
 
+// extern std::shared_ptr<SuTrafficNode> node;
+
 void create_participant(
+    int id, 
+    Eigen::Vector3d detectionLocation);
+
+void update_participant(
     int id, 
     Eigen::Vector3d detectionLocation);
 
