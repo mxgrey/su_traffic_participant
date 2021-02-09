@@ -43,16 +43,6 @@ void SuTrafficNode::topic_callback(const su_msgs::msg::ObjectsLocation::SharedPt
 
 };
 
-void SuTrafficNode::print_detection_map()
-{
-    RCLCPP_INFO(this->get_logger(), "Detections:");
-    std::map<int, Eigen::Vector3d>::iterator itr; 
-    for (itr = detections.begin(); itr != detections.end(); ++itr){
-        RCLCPP_INFO(this->get_logger(), 
-            "id: %d, location: '%f %f %f'", itr->first, itr->second[0], itr->second[1], itr->second[2]);
-    }
-}
-
 int SuTrafficNode::count=1;
 
 

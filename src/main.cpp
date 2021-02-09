@@ -7,8 +7,22 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/executors.hpp>
+#include <map>
+#include <iterator> 
 
 std::shared_ptr<SuTrafficNode> node;
+
+std::map<int, Eigen::Vector3d> detections;
+
+void print_detection_map()
+{
+    RCLCPP_INFO(node->get_logger(), "Detections:");
+    std::map<int, Eigen::Vector3d>::iterator itr; 
+    for (itr = detections.begin(); itr != detections.end(); ++itr){
+        RCLCPP_INFO(node->get_logger(), 
+            "id: %d, location: '%f %f %f'", itr->first, itr->second[0], itr->second[1], itr->second[2]);
+    }
+}
 
 void create_participant(
     int id, 
@@ -44,13 +58,21 @@ void create_participant(
         [id, t = std::move(t), map_name](rmf_traffic::schedule::Participant participant)
         {
             const int p_id = participant.id();
+            const std::map<int, Eigen::Vector3d>::iterator it = detections.find(id);
+            if (it != detections.end()) {
+                std::swap(detections[p_id], it->second);
+                detections.erase(it);
+            }
+            std::cout << "***********" << std::endl;
+            print_detection_map();
+
             node->participant[id] = std::move(participant);
             std::cout << "*** participant ready with id: " << p_id << std::endl;
 
-
+            node->participant[id]->set({{map_name, std::move(t)}});
             
 
-            node->participant[id]->set({{map_name, std::move(t)}});
+            
 
             // rmf_traffic::schedule::StubbornNegotiator negotiator{ participant };
 
@@ -75,8 +97,11 @@ void update_participant(
     int id, 
     Eigen::Vector3d detectionLocation)
 {
-
+    std::cout << "*** clear itinerary" << std::endl;
+    node->participant[id]->clear();
 }
+
+
 
 int main(int argc, char * argv[])
 {
