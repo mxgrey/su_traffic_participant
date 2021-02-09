@@ -1,6 +1,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <map>
 
 #include "rclcpp/rclcpp.hpp"
 #include <rclcpp/executors.hpp>
@@ -27,15 +28,19 @@ public:
 
     rmf_utils::optional<rmf_traffic::schedule::Participant> participant[100];
 
-
 protected:
     static int getCount() { return count++; };
 
-    rclcpp::Subscription<su_msgs::msg::ObjectsLocation>::SharedPtr subscription_;
-    static int count;
-
 private:
 
-    void topic_callback(const su_msgs::msg::ObjectsLocation::SharedPtr msg) const;
+    void topic_callback(const su_msgs::msg::ObjectsLocation::SharedPtr msg);
+
+    void print_detection_map();
+
+    rclcpp::Subscription<su_msgs::msg::ObjectsLocation>::SharedPtr subscription_;
+
+    static int count;
+
+    std::map<int, Eigen::Vector3d> detections;
 
 };

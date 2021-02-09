@@ -3,6 +3,9 @@
 
 #include "std_msgs/msg/string.hpp"
 
+#include <iostream> 
+#include <iterator> 
+
 using std::placeholders::_1;
 
 SuTrafficNode::SuTrafficNode(const rclcpp::NodeOptions& node_options)
@@ -14,7 +17,7 @@ SuTrafficNode::SuTrafficNode(const rclcpp::NodeOptions& node_options)
   
 }
 
-void SuTrafficNode::topic_callback(const su_msgs::msg::ObjectsLocation::SharedPtr msg) const
+void SuTrafficNode::topic_callback(const su_msgs::msg::ObjectsLocation::SharedPtr msg)
 {
     RCLCPP_INFO(this->get_logger(), 
         "OBJECT ---> %s at '%f, %f, %f'", 
@@ -24,13 +27,22 @@ void SuTrafficNode::topic_callback(const su_msgs::msg::ObjectsLocation::SharedPt
         msg->objects[0].object_locations[0].center[2]
     );
 
-    Eigen::Vector3d pos = Eigen::Vector3d{
+    int detection_id = getCount();
+    const Eigen::Vector3d pos = Eigen::Vector3d{
         msg->objects[0].object_locations[0].center[0], msg->objects[0].object_locations[0].center[1], msg->objects[0].object_locations[0].center[2]};
     
-    create_participant(getCount(), pos);
-    // test();
+    // detections[detection_id] = pos;
+    create_participant(detection_id, pos);
 
 };
+
+void SuTrafficNode::print_detection_map()
+{
+    std::map<int, Eigen::Vector3d>::iterator itr; 
+    for (itr = detections.begin(); itr != detections.end(); ++itr){
+        std::cout << "*** " << itr->first << "*** " << itr->second << std::endl;
+    }
+}
 
 int SuTrafficNode::count=1;
 

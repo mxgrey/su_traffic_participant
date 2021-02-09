@@ -11,12 +11,6 @@
 
 std::shared_ptr<SuTrafficNode> node;
 
-int test(){
-    std::cout << "TEST FUNCTION" << std::endl;
-    return 2;
-}
-
-
 void create_participant(
     int id, 
     Eigen::Vector3d detectionLocation)
@@ -66,6 +60,10 @@ void create_participant(
             // node->_negotiation->register_negotiator(participant.id(), 
             // std::make_unique<rmf_traffic::schedule::StubbornNegotiator>(
             // rmf_traffic::schedule::StubbornNegotiator(participant)));
+
+            //TODO: unregister participant after trajectory duration ended
+            // node->writer->unregister_participant(participant.id());
+
         });    
 }
 
