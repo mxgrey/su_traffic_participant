@@ -26,10 +26,8 @@ void SuTrafficNode::topic_callback(const su_msgs::msg::ObjectsLocation::SharedPt
 
     Eigen::Vector3d pos = Eigen::Vector3d{
         msg->objects[0].object_locations[0].center[0], msg->objects[0].object_locations[0].center[1], msg->objects[0].object_locations[0].center[2]};
-
-    std::string nodeName = "detection_" + std::to_string(getCount());
-    std::cout << "*** " << nodeName << std::endl;
-    create_participant(nodeName, pos);
+    
+    create_participant(getCount(), pos);
     // test();
 
 };

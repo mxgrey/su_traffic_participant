@@ -18,14 +18,14 @@ int test(){
 
 
 void create_participant(
-    std::string id, 
+    int id, 
     Eigen::Vector3d detectionLocation)
 {
     while (!node->writer->ready())
         rclcpp::spin_some(node);
-    
+
     rmf_traffic::schedule::ParticipantDescription description{
-        "participant_" + id,
+        "participant_" + std::to_string(id),
         "scene_understanding",
         rmf_traffic::schedule::ParticipantDescription::Rx::Unresponsive,
         rmf_traffic::Profile{
@@ -43,21 +43,16 @@ void create_participant(
     //TODO: get name from subscriber
     std::string map_name = "L1";
 
-    std::cout << "*** " << std::endl;
-
     t.insert(_start_time, detectionLocation, {0, 0, 0});
     t.insert(_finish_time, detectionLocation, {0, 0, 0});
 
-    std::cout << "*** " << std::endl;
-
     node->writer->async_make_participant(
         std::move(description),
-        [t = std::move(t), map_name](rmf_traffic::schedule::Participant participant)
+        [id, t = std::move(t), map_name](rmf_traffic::schedule::Participant participant)
         {
-            std::cout << "*** " << std::endl;
-            node->participant = std::move(participant);
+            node->participant[id] = std::move(participant);
             std::cout << "*** participant ready ***" << std::endl;
-            node->participant->set({{map_name, std::move(t)}});
+            node->participant[id]->set({{map_name, std::move(t)}});
 
             // rmf_traffic::schedule::StubbornNegotiator negotiator{ participant };
 

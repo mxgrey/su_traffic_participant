@@ -6,7 +6,7 @@
 int test();
 
 void create_participant(
-    std::string id, 
+    int id, 
     Eigen::Vector3d detectionLocation);
 
 #endif //PARTICIPANTINTERFACE_HPP
