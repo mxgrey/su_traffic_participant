@@ -32,13 +32,22 @@ void SuTrafficNode::topic_callback(const su_msgs::msg::ObjectsLocation::SharedPt
         msg->objects[0].object_locations[0].center[0], msg->objects[0].object_locations[0].center[1], msg->objects[0].object_locations[0].center[2]};
     
     
+    if (!map.empty()){
+        std::pair<bool, int> isNearby = calculate_distance(pos);
+        if (isNearby.first){
+            std::cout << "*** updating itinerary" << std::endl;
+            update_participant(isNearby.second, pos);
+            map[detection_id] = pos;
+            print_detection_map();
+            create_participant(detection_id, pos);
 
-    // bool isNearby = false;
-    if (msg->robot_id == "TRUE"){
-        std::cout << "*** updating itinerary" << std::endl;
-        update_participant(1, pos);
-    }else{
-        detections[detection_id] = pos;
+        } else {
+            map[detection_id] = pos;
+            print_detection_map();
+            create_participant(detection_id, pos);
+        }
+    } else {
+        map[detection_id] = pos;
         print_detection_map();
         create_participant(detection_id, pos);
     }

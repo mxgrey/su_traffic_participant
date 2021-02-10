@@ -9,16 +9,17 @@
 #include <rclcpp/executors.hpp>
 #include <map>
 #include <iterator> 
+#include <limits>
 
 std::shared_ptr<SuTrafficNode> node;
 
-std::map<int, Eigen::Vector3d> detections;
+std::map<int, Eigen::Vector3d> map;
 
 void print_detection_map()
 {
     RCLCPP_INFO(node->get_logger(), "Detections:");
     std::map<int, Eigen::Vector3d>::iterator itr; 
-    for (itr = detections.begin(); itr != detections.end(); ++itr){
+    for (itr = map.begin(); itr != map.end(); ++itr){
         RCLCPP_INFO(node->get_logger(), 
             "id: %d, location: '%f %f %f'", itr->first, itr->second[0], itr->second[1], itr->second[2]);
     }
@@ -44,7 +45,7 @@ void create_participant(
     rmf_traffic::Trajectory t;
     using namespace std::chrono_literals;
     //TODO: get duration from subscriber
-    rmf_traffic::Duration duration_ = 600s;
+    rmf_traffic::Duration duration_ = 60s;
     rmf_traffic::Time _start_time = rmf_traffic_ros2::convert(node->now());
     rmf_traffic::Time _finish_time = _start_time + duration_;
     //TODO: get name from subscriber
@@ -58,16 +59,16 @@ void create_participant(
         [id, t = std::move(t), map_name](rmf_traffic::schedule::Participant participant)
         {
             const int p_id = participant.id();
-            const std::map<int, Eigen::Vector3d>::iterator it = detections.find(id);
-            if (it != detections.end()) {
-                std::swap(detections[p_id], it->second);
-                detections.erase(it);
+            const std::map<int, Eigen::Vector3d>::iterator it = map.find(id);
+            if (it != map.end()) {
+                std::swap(map[p_id], it->second);
+                map.erase(it);
             }
 
-            node->participant[id] = std::move(participant);
+            node->participant[p_id] = std::move(participant);
             std::cout << "*** participant ready with id: " << p_id << std::endl;
 
-            node->participant[id]->set({{map_name, std::move(t)}});
+            node->participant[p_id]->set({{map_name, std::move(t)}});
             
 
             
@@ -101,7 +102,32 @@ void update_participant(
     // rmf_utils::optional<rmf_traffic::schedule::Participant> 
     //     p = node->participant[id];
     node->participant[id]->clear();
+    map.erase(id);
 
+}
+
+std::pair<bool, int> calculate_distance(Eigen::Vector3d newPos){
+    bool isNearby= false;
+    int p_id;
+    double abs_dist;
+    double threshold = 1.0;
+
+    std::map<int, Eigen::Vector3d>::iterator itr; 
+
+    for (itr = map.begin(); itr != map.end(); ++itr){
+        RCLCPP_INFO(node->get_logger(), 
+            "id: %d, location: '%f %f %f'", itr->first, itr->second[0], itr->second[1], itr->second[2]);
+        abs_dist = sqrt(pow((itr->second[0]-newPos[0]), 2) + pow((itr->second[1]-newPos[1]), 2));
+        if (abs_dist < threshold) {
+            isNearby = true; 
+            p_id = itr->first;
+            break;
+        }
+        std::cout.precision(std::numeric_limits<double>::max_digits10);
+        std::cout << "*** calculated distance: " << std::fixed << abs_dist << std::endl;
+    }
+    
+    return std::make_pair(isNearby, p_id);
 }
 
 

@@ -5,7 +5,7 @@
 
 // extern std::shared_ptr<SuTrafficNode> node;
 
-extern std::map<int, Eigen::Vector3d> detections;
+extern std::map<int, Eigen::Vector3d> map;
 
 void create_participant(
     int id, 
@@ -16,5 +16,7 @@ void update_participant(
     Eigen::Vector3d detectionLocation);
 
 void print_detection_map();
+
+std::pair<bool, int> calculate_distance(Eigen::Vector3d newPos);
 
 #endif //PARTICIPANTINTERFACE_HPP
