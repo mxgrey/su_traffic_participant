@@ -5,6 +5,8 @@
 
 // extern std::shared_ptr<SuTrafficNode> node;
 
+extern std::array<std::string, 2> texts = {"wheelchair", "cone"};
+
 extern std::map<int, Eigen::Vector3d> map;
 
 void create_participant(

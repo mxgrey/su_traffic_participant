@@ -67,7 +67,7 @@ void create_participant(
 
             node->participant[p_id] = std::move(participant);
             std::cout << "*** participant ready with id: " << p_id << std::endl;
-
+            print_detection_map();
             node->participant[p_id]->set({{map_name, std::move(t)}});
             
 
