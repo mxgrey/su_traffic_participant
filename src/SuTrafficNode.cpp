@@ -31,9 +31,6 @@ void SuTrafficNode::topic_callback(const su_msgs::msg::ObjectsLocation::SharedPt
 
     for(su_msgs::msg::Object obj : msg->objects)
     {
-        std::cout << "*********************************" << std::endl;
-
-
         bool isObjClassValid = false;
         std::array<std::string, 2> valid_obj_classes = {"wheelchair", "cone"};
         for(auto &valid_obj_class : valid_obj_classes) {   

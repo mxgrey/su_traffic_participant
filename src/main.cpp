@@ -99,8 +99,6 @@ void update_participant(
     while (!node->writer->ready())
         rclcpp::spin_some(node);
     std::cout << "*** clear itinerary" << std::endl;
-    // rmf_utils::optional<rmf_traffic::schedule::Participant> 
-    //     p = node->participant[id];
     node->participant[id]->clear();
     map.erase(id);
 
