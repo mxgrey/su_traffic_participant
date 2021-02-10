@@ -1,80 +1,77 @@
-# traffic_participant_controller
+# scene understanding traffic participant
 
-api for create update and delete of traffic participant. specifically from scene understanding manager with wheelchair and cone detection only. 
+1. subscriber to scene understanding manager (SUM) package to get location and type of detections
+2. create and delete traffic participant per detection
+3. update location of detection using `Trajectory` 
 
-```mermaid
-graph TB
+## Install
 
-  Publisher --> Subscriber
-  subgraph "Scene Uds Manager"
-  Publisher(publisher topic for all detections)
-  end
+* follow the [rmf_demos](https://github.com/osrf/rmf_demos/blob/master/docs/installation.md) page for installation 
 
-  subgraph "rmf_fleet_adapter"
-  Node(read-only fleet adapter node)
-  N2(node 2)
-  N3(node 3)
-  end
+* In the same workspace, 
 
-  subgraph "detection adapter drivers"
-  Driver(Driver 1)
-  Driver2(Driver 2)
-  Driver3(Driver 3)
-  end
+```bash
+cd rmf_demo_ws/src
 
-  subgraph "Traffic Particpant Controller"
-  Subscriber(subscriber topic for all detections)
-  Subscriber --> FindClass[filter for wheelchair and cones detections only] --> Detection((Detection Object))
-  Detection --> Proximity[check for proximity based on detection type]
-  Proximity -- location of object --> Create(create traffic participant)
-  DB(Detection in-memory DB) --> DBops(save, update, delete)
-  Create --- C1[launch driver app w publisher to fleet_states] --- C2[launch detection adapter node] --> DB
-  C1 --> Driver
-  C2 --> Node
-  Proximity --> Update(update existing traffic participant) 
-  Update --- U1[publish new location to /fleet_states] --> TimerReset
-  CountdownTimer[countdown timer] --- TimerReset[reset timer]
-  CountdownTimer --- TimerStop[countdown timer stops] --> Delete(delete existing traffic participant)
-  Delete --- D1[remove fleet driver app and fleet adapter node] --> DB
-  style Subscriber stroke:#f66,stroke-width:4px
-  style Create stroke:#f66,stroke-width:4px
-  style Update stroke:#f66,stroke-width:4px
-  style Delete stroke:#f66,stroke-width:4px
-  style FindClass fill:#ccf,stroke-width:2px,stroke-dasharray: 5, 5
-  style Proximity fill:#ccf,stroke-width:2px,stroke-dasharray: 5, 5
-  style CountdownTimer fill:#ccf,stroke-width:2px,stroke-dasharray: 5, 5
-  style DB fill:#ccf,stroke-width:2px,stroke-dasharray: 5, 5
+git clone git@gitlab.com:imda_dsl/vama-2/su_traffic_participant.git
 
-end
+colcon build --packages-select su_traffic_participant
 ```
 
-design reference to confluence page(https://imda-dsl.atlassian.net/wiki/spaces/VAMA/pages/470286350/Alternate+flow+for+lift+integration+and+obstacle)
+## Run
 
-## components details
+* This project had been tested with rmf_demos office simulation
 
-- adapter driver: similar to fleet adapater drivers where its job is to transmit `rmf_fleet_msgs/FleetState` messages out to the `fleet_states` topic. It is a ROS 2 application (using either rclcpp or rclpy) which we will refer to as the Fleet Driver.
+```bash
+source /opt/ros/foxy/setup.bash
+cd rmf_demo_ws
+source install/setup.bash
+ros2 launch demos office.launch.xml
+```
 
-## software design
+Open workspace in another terminal and source
 
-1. Proximity checker 
-- for wheelchair (dynamic object): 2m x width of traffic lane
-- for cones (static object): 0.5m x width of traffic lane
+```bash
+ros2 run su_traffic_participant listener
+```
 
-2. Countdown Timer to check if existing traffic participant exceed a time threshold. This may need multi-threading. 
-- Each thread created for a new traffic participant and start counting down. Once countdown is up, traffic particpant would be deleted. 
-- If existing participant gets updated, countdown should reset. 
+## Usage for Testing and Demostration
 
-## test scenario
+Open workspace in another terminal and source. Send mock detection in form of `su_msgs` using `ros2 topic pub` command. 
 
-1. static images 
+* near entrance of pantry
 
-- location of these detection would change according to the current location of robot as camera location is at a relative location. 
+```bash
+ros2 topic pub --once /su_detections su_msgs/ObjectsLocation "{robot_id: 'ROBOT_123', objects:[{object_class: 'cone', object_locations: [{center:[16.4, -6.89, -0.01], dimensions:[10,10,10], yaw: 0.0}]}]}"
+```
 
-## TODO:
+near main entrance
 
-1. how to run launch.xml file using ROS python library? to launch fleet adapter node in rmf_fleet_adapter package.
+```bash
+ros2 topic pub --once /su_detections su_msgs/ObjectsLocation "{robot_id: 'ROBOT_123', objects:[{object_class: 'cone', object_locations: [{center:[14.0, -4.0, -0.01], dimensions:[10,10,10], yaw: 0.0}]}]}"
+```
 
-## follow-up
+2 objects detections in single message
 
-1. `detection_states` topic be created that is integrated with `rmf_traffic`. detection traffic participants are riding on `fleet_states` topic since `rmf_fleet_adapter` library is utilised. 
+```bash
+ros2 topic pub --once /su_detections su_msgs/ObjectsLocation "{robot_id: 'ROBOT_123', objects:[{object_class: 'people', object_locations: [{center:[14.0, -4.0, -0.01], dimensions:[10,10,10], yaw: 0.0}]}, {object_class: 'wheelchair', object_locations: [{center:[14.0, -4.0, -0.01], dimensions:[10,10,10], yaw: 0.0}]}]}"
+```
+
+* update the location of a similar nearby participant
+
+near main entrance
+
+eg. first detection
+
+```bash
+ros2 topic pub --once /su_detections su_msgs/ObjectsLocation "{robot_id: 'ROBOT_123', objects:[{object_class: 'cone', object_locations: [{center:[16.4, -6.89, -0.01], dimensions:[10,10,10], yaw: 0.0}]}]}"
+```
+
+eg. second detection
+
+```bash
+ros2 topic pub --once /su_detections su_msgs/ObjectsLocation "{robot_id: 'ROBOT_123', objects:[{object_class: 'cone', object_locations: [{center:[16.0, -6.89, -0.01], dimensions:[10,10,10], yaw: 0.0}]}]}"
+```
+
+
 
