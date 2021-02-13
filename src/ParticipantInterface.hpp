@@ -13,9 +13,8 @@ void create_participant(
     int id, 
     Eigen::Vector3d detectionLocation);
 
-void update_participant(
-    int id, 
-    Eigen::Vector3d detectionLocation);
+void remove_participant(
+    int id);
 
 void print_detection_map();
 

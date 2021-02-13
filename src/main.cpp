@@ -17,12 +17,13 @@ std::map<int, Eigen::Vector3d> map;
 
 void print_detection_map()
 {
-    RCLCPP_INFO(node->get_logger(), "Detections:");
+    RCLCPP_INFO(node->get_logger(), "******** All Detections ********");
     std::map<int, Eigen::Vector3d>::iterator itr; 
     for (itr = map.begin(); itr != map.end(); ++itr){
         RCLCPP_INFO(node->get_logger(), 
             "id: %d, location: '%f %f %f'", itr->first, itr->second[0], itr->second[1], itr->second[2]);
     }
+    RCLCPP_INFO(node->get_logger(), "********************************");
 }
 
 void create_participant(
@@ -66,7 +67,7 @@ void create_participant(
             }
 
             node->participant[p_id] = std::move(participant);
-            std::cout << "*** participant ready with id: " << p_id << std::endl;
+            RCLCPP_INFO(node->get_logger(), "Created participant with id: %d", p_id);
             print_detection_map();
             node->participant[p_id]->set({{map_name, std::move(t)}});
             
@@ -92,13 +93,12 @@ void create_participant(
         });    
 }
 
-void update_participant(
-    int id, 
-    Eigen::Vector3d detectionLocation)
+void remove_participant(
+    int id)
 {
     while (!node->writer->ready())
         rclcpp::spin_some(node);
-    std::cout << "*** clear itinerary" << std::endl;
+    RCLCPP_INFO(node->get_logger(), "Removing outdated waypoint");
     node->participant[id]->clear();
     map.erase(id);
 
@@ -106,23 +106,21 @@ void update_participant(
 
 std::pair<bool, int> calculate_distance(Eigen::Vector3d newPos){
     bool isNearby= false;
-    int p_id;
+    int p_id=0;
     double abs_dist;
     double threshold = 1.0;
 
     std::map<int, Eigen::Vector3d>::iterator itr; 
 
     for (itr = map.begin(); itr != map.end(); ++itr){
-        RCLCPP_INFO(node->get_logger(), 
-            "id: %d, location: '%f %f %f'", itr->first, itr->second[0], itr->second[1], itr->second[2]);
         abs_dist = sqrt(pow((itr->second[0]-newPos[0]), 2) + pow((itr->second[1]-newPos[1]), 2));
+        std::cout.precision(std::numeric_limits<double>::max_digits10);
+        std::cout << "distance between participants: " << std::fixed << abs_dist << std::endl;
         if (abs_dist < threshold) {
             isNearby = true; 
             p_id = itr->first;
             break;
         }
-        std::cout.precision(std::numeric_limits<double>::max_digits10);
-        std::cout << "*** calculated distance: " << std::fixed << abs_dist << std::endl;
     }
     
     return std::make_pair(isNearby, p_id);
