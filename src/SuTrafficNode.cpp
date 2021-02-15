@@ -36,18 +36,14 @@ std::shared_ptr<SuTrafficNode> SuTrafficNode::make()
 }
 
 
-SuTrafficNode::ParticipantInfo::ParticipantInfo(
-    rmf_traffic::schedule::Participant p, 
-    rmf_traffic_ros2::schedule::Negotiation& negotiation)
+SuTrafficNode::ParticipantInfo::ParticipantInfo(rmf_traffic::schedule::Participant p, rmf_traffic_ros2::schedule::Negotiation& negotiation)
     : participant(std::move(p))
 {
     auto negotiator = std::make_unique<rmf_traffic::schedule::StubbornNegotiator>(participant);
     negotiation_license = negotiation.register_negotiator(participant.id(), std::move(negotiator));
 }
 
-void SuTrafficNode::create_participant(
-    int id, 
-    Eigen::Vector3d detectionLocation)
+void SuTrafficNode::create_participant(int id, Eigen::Vector3d detectionLocation)
 {
     rmf_traffic::schedule::ParticipantDescription description{
         "participant_" + std::to_string(id),
@@ -76,22 +72,23 @@ void SuTrafficNode::create_participant(
         [this, id, t = std::move(t), map_name](rmf_traffic::schedule::Participant p)
         {
             const int p_id = p.id();
-            this->participant_info_map.insert({ p_id, ParticipantInfo(std::move(p), *this->_negotiation) });
+            participant_info_map.insert({ p_id, ParticipantInfo(std::move(p), *this->_negotiation) });
 
             RCLCPP_INFO(this->get_logger(), "Created participant with id: %d", p_id);
-            for (auto itr = participant_info_map.find(p_id); itr != participant_info_map.end(); itr++) 
-                itr->second.participant.set({{map_name, std::move(t)}});
+            participant_info_map.at(p_id).participant.set({{map_name, std::move(t)}});
 
-            // print_detection_map();
+            // print_location_map();
         });    
 }
 
 void SuTrafficNode::remove_participant(int id)
 {
     RCLCPP_INFO(this->get_logger(), "Removing outdated waypoint");
-    this->participant[id]->clear();
-    map.erase(id);
-
+    for (auto itr = participant_info_map.find(id); itr != participant_info_map.end(); itr++){
+        itr->second.participant.clear();
+        participant_info_map.erase(id);
+        location_map.erase(id);
+    }
 }
 
 std::pair<bool, int> SuTrafficNode::calculate_distance(Eigen::Vector3d newPos){
@@ -102,7 +99,7 @@ std::pair<bool, int> SuTrafficNode::calculate_distance(Eigen::Vector3d newPos){
 
     std::map<int, Eigen::Vector3d>::iterator itr; 
 
-    for (itr = map.begin(); itr != map.end(); ++itr){
+    for (itr = location_map.begin(); itr != location_map.end(); ++itr){
         abs_dist = sqrt(pow((itr->second[0]-newPos[0]), 2) + pow((itr->second[1]-newPos[1]), 2));
         std::cout.precision(std::numeric_limits<double>::max_digits10);
         std::cout << "distance between participants: " << std::fixed << abs_dist << std::endl;
@@ -116,11 +113,11 @@ std::pair<bool, int> SuTrafficNode::calculate_distance(Eigen::Vector3d newPos){
     return std::make_pair(isNearby, p_id);
 }
 
-void SuTrafficNode::print_detection_map()
+void SuTrafficNode::print_location_map()
 {
     RCLCPP_INFO(this->get_logger(), "******** All Detections ********");
     std::map<int, Eigen::Vector3d>::iterator itr; 
-    for (itr = map.begin(); itr != map.end(); ++itr){
+    for (itr = location_map.begin(); itr != location_map.end(); ++itr){
         RCLCPP_INFO(this->get_logger(), 
             "id: %d, location: '%f %f %f'", itr->first, itr->second[0], itr->second[1], itr->second[2]);
     }
@@ -159,19 +156,19 @@ void SuTrafficNode::topic_callback(const su_msgs::msg::ObjectsLocation::SharedPt
             Eigen::Vector3d pos = Eigen::Vector3d{obj.object_locations[0].center[0], obj.object_locations[0].center[1], obj.object_locations[0].center[2]};
         
             //TODO: write shorter codes
-            if (!map.empty()){
+            if (!location_map.empty()){
                 std::pair<bool, int> isNearby = calculate_distance(pos);
                 if (isNearby.first){
                     remove_participant(isNearby.second);
-                    map[detection_id] = pos;
+                    location_map[detection_id] = pos;
                     create_participant(detection_id, pos);
 
                 } else {
-                    map[detection_id] = pos;
+                    location_map[detection_id] = pos;
                     create_participant(detection_id, pos);
                 }
             } else {
-                map[detection_id] = pos;
+                location_map[detection_id] = pos;
                 create_participant(detection_id, pos);
             }
         }

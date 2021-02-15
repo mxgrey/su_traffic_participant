@@ -29,6 +29,8 @@ source install/setup.bash
 ros2 launch demos office.launch.xml
 ```
 
+Send a loop request. eg. from pantry to station_1
+
 Open workspace in another terminal and source
 
 ```bash

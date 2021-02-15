@@ -48,12 +48,10 @@ private:
 
     rmf_traffic_ros2::schedule::WriterPtr writer;
 
-    rmf_utils::optional<rmf_traffic::schedule::Participant> participant[100];
-
     rmf_utils::optional<rmf_traffic_ros2::schedule::MirrorManager> _mirror;
     rmf_utils::optional<rmf_traffic_ros2::schedule::Negotiation> _negotiation;
     
-    std::map<int, Eigen::Vector3d> map;
+    std::map<int, Eigen::Vector3d> location_map;
 
     struct ParticipantInfo
     {
@@ -65,7 +63,7 @@ private:
 
     void create_participant(int id, Eigen::Vector3d detectionLocation);
     void remove_participant(int id);
-    void print_detection_map();
+    void print_location_map();
     std::pair<bool, int> calculate_distance(Eigen::Vector3d newPos);
 
 };
