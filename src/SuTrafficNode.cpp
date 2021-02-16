@@ -33,14 +33,16 @@ std::shared_ptr<SuTrafficNode> SuTrafficNode::make()
             return node;
         }
     }
+
+    return nullptr;
 }
 
 
 SuTrafficNode::ParticipantInfo::ParticipantInfo(rmf_traffic::schedule::Participant p, rmf_traffic_ros2::schedule::Negotiation& negotiation)
-    : participant(std::move(p))
+    : participant(std::make_shared<rmf_traffic::schedule::Participant>(std::move(p)))
 {
     auto negotiator = std::make_unique<rmf_traffic::schedule::StubbornNegotiator>(participant);
-    negotiation_license = negotiation.register_negotiator(participant.id(), std::move(negotiator));
+    negotiation_license = negotiation.register_negotiator(participant->id(), std::move(negotiator));
 }
 
 void SuTrafficNode::create_participant(int id, Eigen::Vector3d detectionLocation)
@@ -69,13 +71,13 @@ void SuTrafficNode::create_participant(int id, Eigen::Vector3d detectionLocation
 
     this->writer->async_make_participant(
         std::move(description),
-        [this, id, t = std::move(t), map_name](rmf_traffic::schedule::Participant p)
+        [this, t = std::move(t), map_name](rmf_traffic::schedule::Participant p)
         {
             const int p_id = p.id();
             participant_info_map.insert({ p_id, ParticipantInfo(std::move(p), *this->_negotiation) });
 
             RCLCPP_INFO(this->get_logger(), "Created participant with id: %d", p_id);
-            participant_info_map.at(p_id).participant.set({{map_name, std::move(t)}});
+            participant_info_map.at(p_id).participant->set({{map_name, std::move(t)}});
 
             // print_location_map();
         });    
@@ -85,7 +87,7 @@ void SuTrafficNode::remove_participant(int id)
 {
     RCLCPP_INFO(this->get_logger(), "Removing outdated waypoint");
     for (auto itr = participant_info_map.find(id); itr != participant_info_map.end(); itr++){
-        itr->second.participant.clear();
+        itr->second.participant->clear();
         participant_info_map.erase(id);
         location_map.erase(id);
     }
@@ -129,20 +131,20 @@ SuTrafficNode::SuTrafficNode(const rclcpp::NodeOptions& node_options)
   : rclcpp::Node("detection_subscriber", node_options)
   {
     subscription_ = this->create_subscription<su_msgs::msg::ObjectsLocation>(
-      "su_detections", rclcpp::SystemDefaultsQoS(), std::bind(&SuTrafficNode::topic_callback, this, _1));  
+      "su_detections", rclcpp::SystemDefaultsQoS(), std::bind(&SuTrafficNode::topic_callback, this, _1));
 }
 
 void SuTrafficNode::topic_callback(const su_msgs::msg::ObjectsLocation::SharedPtr msg)
 {
     for(su_msgs::msg::Object obj : msg->objects)
     {
-        RCLCPP_INFO(this->get_logger(), 
-            "Msg received ---> %s detected at '%f, %f, %f'", 
+        RCLCPP_INFO(this->get_logger(),
+            "Msg received ---> %s detected at '%f, %f, %f'",
             obj.object_class.c_str(), obj.object_locations[0].center[0], obj.object_locations[0].center[1], obj.object_locations[0].center[2]);
 
         bool isObjClassValid = false;
         std::array<std::string, 2> valid_obj_classes = {"wheelchair", "cone"};
-        for(auto &valid_obj_class : valid_obj_classes) {   
+        for(auto &valid_obj_class : valid_obj_classes) {
             if (obj.object_class == valid_obj_class) {
                 isObjClassValid = true;
             }

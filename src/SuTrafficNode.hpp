@@ -55,7 +55,7 @@ private:
 
     struct ParticipantInfo
     {
-        rmf_traffic::schedule::Participant participant;
+        std::shared_ptr<rmf_traffic::schedule::Participant> participant;
         std::shared_ptr<void> negotiation_license;
         ParticipantInfo(rmf_traffic::schedule::Participant p, rmf_traffic_ros2::schedule::Negotiation& negotiation);
     };
